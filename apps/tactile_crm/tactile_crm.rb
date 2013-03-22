@@ -8,11 +8,11 @@ module TactileCrm
       if person
         html = existing_person_info(person)
       else
-        html = created_person_info(person)
         person = create_person(requester)
-        update_note(person, ticket)
-        comment_on_ticket(html, ticket)
+        html = created_person_info(person)
       end
+      update_note(person, ticket)
+      comment_on_ticket(html, ticket)
       [200, "Ticket sent"]
     end
   end
@@ -42,7 +42,14 @@ module TactileCrm
         req.params['api_token'] = settings.api_token
       end
       people = response.body['people']
-      person = people.select{|pe| pe['firstname'] == 'firstname'}.first
+      person = people.select{|pe| pe['firstname'] == first_name and pe['email'] == requester.email}.first
+      if person
+        puts person
+        return person
+      else
+        return nil
+      end
+      
     end
 
     def create_person(requester)
@@ -54,7 +61,8 @@ module TactileCrm
         req.body = {Person:{firstname:first_name, surname:first_name}}.to_json
       end
       person_id = response.body['id']
-      person = get_person_by_id(person_id)
+      person = get_person_by_id(person_id) 
+      return person
     end
 
     def split_name(requester)
@@ -83,21 +91,18 @@ module TactileCrm
  
     def existing_person_info(person)
       html = ""
-      html << "<b> #{person['name']} </b><br/>" 
-      html << "#{person['email']} " if person['email']
-      html << "<br/>"
       html << person_link(person)
       html
     end
 
     def created_person_info(person)
-      html = "Added <b> #{person['name']} </b> to Tactile... " 
+      html = "Added <b> #{person['firstname']} </b> to Tactile... " 
       html << person_link(person)
       html
     end
     
     def person_link(person)
-      "<a href='https://#{account_name}.tactilecrm.com/person/view/#{person['id']}'>View #{person['name']}'s profile on Tactile</a>"
+      "<a href='https://#{settings.account_name}.tactilecrm.com/person/view/#{person['id']}'>View #{person['name']}'s profile on Tactile</a>"
     end
 
     def generate_note_content(ticket)
