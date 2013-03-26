@@ -105,7 +105,7 @@ module TactileCrm
     end
     
     def person_link(person)
-      "<a href='https://#{settings.account_name}.tactilecrm.com/person/view/#{person['id']}'>View #{person['name']}'s profile on Tactile</a>"
+      "<a href='https://#{settings.account_name}.tactilecrm.com/person/view/#{person['id']}'>View #{person['firstname']}'s profile on Tactile</a>"
     end
 
     def generate_note_content(ticket)
