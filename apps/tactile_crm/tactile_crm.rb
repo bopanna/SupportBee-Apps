@@ -5,12 +5,19 @@ module TactileCrm
       ticket = payload.ticket
       requester = ticket.requester
       person = find_person(requester)
+      
+      begin
       if person
         html = existing_person_info(person)
       else
         person = create_person(requester)
         html = created_person_info(person)
       end
+      rescue Exception => e
+        puts "#{e.message}\n#{e.backtrace}"
+        [500, e.message]
+      end
+      
       update_note(person, ticket)
       comment_on_ticket(html, ticket)
       [200, "Ticket sent"]
@@ -31,9 +38,9 @@ module TactileCrm
   class Base < SupportBeeApp::Base
     string :api_token, :required => true, :label => 'Tactile Auth Token'
     string :account_name, :required => true, :label => 'Tactile Account Name'
-    boolean :should_create_person, :default => true, :required => false, :label => 'Create a New Person'
+    boolean :should_create_person, :default => true, :required => false, :label => 'Create a New Person in Tactile if one does not exist'
 	
-    white_list :account_name, :should_create_person
+    white_list :should_create_person
     
     def find_person(requester)
       first_name, sur_name = split_name(requester)
@@ -42,14 +49,8 @@ module TactileCrm
         req.params['api_token'] = settings.api_token
       end
       people = response.body['people']
-      person = people.select{|pe| pe['firstname'] == first_name and pe['email'] == requester.email}.first
-      if person
-        puts person
-        return person
-      else
-        return nil
-      end
-      
+      person = people.select{|pe| pe['firstname'] == first_name and pe['email'] == requester.email}.first if people
+      person ? person : nil
     end
 
     def create_person(requester)
@@ -66,7 +67,7 @@ module TactileCrm
     end
 
     def split_name(requester)
-      first_name, sur_name = requester.name ? requester.name.split : [requester.email,'']
+      first_name, sur_name = requester.name ? requester.name.split(' ') : [requester.email,'']
     end
 
     def get_person_by_id(person_id)
@@ -91,12 +92,14 @@ module TactileCrm
  
     def existing_person_info(person)
       html = ""
+      html << "<b> #{person['firstname']} </b><br/>" 
+      html << "<br/>"
       html << person_link(person)
       html
     end
 
     def created_person_info(person)
-      html = "Added <b> #{person['firstname']} </b> to Tactile... " 
+      html = "Added <b> #{person['firstname']} </b> to Tactile...<br/>" 
       html << person_link(person)
       html
     end
