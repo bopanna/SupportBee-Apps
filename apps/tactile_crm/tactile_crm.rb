@@ -59,7 +59,7 @@ module TactileCrm
       response = http_post "https://#{settings.account_name}.tactilecrm.com/people/save" do |req|
         req.headers['Content-Type'] = 'application/json'
         req.params['api_token'] = settings.api_token
-        req.body = {Person:{firstname:first_name, surname:first_name}}.to_json
+        req.body = {Person:{firstname:first_name, surname:first_name, email:required.email}}.to_json
       end
       person_id = response.body['id']
       person = get_person_by_id(person_id) 
