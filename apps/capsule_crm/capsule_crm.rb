@@ -51,7 +51,6 @@ module CapsuleCrm
       end
       body = response.body
       party = body['parties']['person'] if body
-      puts party
 
       if party.is_a?(Array)
         person = extract_person(party, first_name)
