@@ -7,14 +7,14 @@ module CapsuleCrm
       http.basic_auth(settings.api_token, "")
 
       begin
-      person = find_person(requester)  
-      unless person
-        person =  create_new_person(ticket, requester)
-        html = new_person_info_html(person)
-      else
-        html = person_info_html(person)
-        send_note(ticket, person)
-      end
+        person = find_person(requester)  
+        unless person
+          person =  create_new_person(ticket, requester)
+          html = new_person_info_html(person)
+        else
+          html = person_info_html(person)
+          send_note(ticket, person)
+        end
       rescue Exception => e
         puts "#{e.message}\n#{e.backtrace}"
         [500, e.message]
