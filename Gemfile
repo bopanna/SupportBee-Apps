@@ -1,4 +1,4 @@
-source :rubygems
+source 'https://rubygems.org'
 
 # Core Gems
 gem 'sinatra'
@@ -21,6 +21,7 @@ gem 'hipchat'
 gem 'evernote-thrift'
 gem 'highrise'
 gem 'jaconda'
+gem "basecamp", :require => 'basecamp'
 gem 'ruby-trello', :require => 'trello'
 
 gem 'guard-shotgun', :git =>'git://github.com/rchampourlier/guard-shotgun.git', :group => :development
